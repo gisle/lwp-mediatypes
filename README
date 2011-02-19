@@ -1,94 +1,69 @@
+NAME
+    LWP::MediaTypes - guess media type for a file or a URL
 
-                     L I B W W W - P E R L - 5
-                   -----------------------------
+SYNOPSIS
+     use LWP::MediaTypes qw(guess_media_type);
+     $type = guess_media_type("/tmp/foo.gif");
 
+DESCRIPTION
+    This module provides functions for handling media (also known as MIME)
+    types and encodings. The mapping from file extensions to media types is
+    defined by the media.types file. If the ~/.media.types file exists it is
+    used instead. For backwards compatibility we will also look for
+    ~/.mime.types.
 
-The libwww-perl collection is a set of Perl modules which provides a
-simple and consistent application programming interface to the
-World-Wide Web.  The main focus of the library is to provide classes
-and functions that allow you to write WWW clients. The library also
-contain modules that are of more general use and even classes that
-help you implement simple HTTP servers.
+    The following functions are exported by default:
 
+    guess_media_type( $filename )
+    guess_media_type( $uri )
+    guess_media_type( $filename_or_uri, $header_to_modify )
+        This function tries to guess media type and encoding for a file or a
+        URI. It returns the content type, which is a string like
+        `"text/html"'. In array context it also returns any content
+        encodings applied (in the order used to encode the file). You can
+        pass a URI object reference, instead of the file name.
 
-PREREQUISITES
+        If the type can not be deduced from looking at the file name, then
+        guess_media_type() will let the `-T' Perl operator take a look. If
+        this works (and `-T' returns a TRUE value) then we return
+        *text/plain* as the type, otherwise we return
+        *application/octet-stream* as the type.
 
-In order to install and use this package you will need Perl version
-5.8.8 or better.  Some modules within this package depend on other
-packages that are distributed separately from Perl.  We recommend that
-you have the following packages installed before you install
-libwww-perl:
+        The optional second argument should be a reference to a
+        HTTP::Headers object or any object that implements the $obj->header
+        method in a similar way. When it is present the values of the
+        'Content-Type' and 'Content-Encoding' will be set for this header.
 
-  URI
-  MIME-Base64
-  HTML-Tagset
-  HTML-Parser
-  libnet
-  Digest-MD5
-  Encode-Locale
-  Compress-Zlib
+    media_suffix( $type, ... )
+        This function will return all suffixes that can be used to denote
+        the specified media type(s). Wildcard types can be used. In a scalar
+        context it will return the first suffix found. Examples:
 
-If you want to access sites using the https protocol, then you need to
-install the Crypt::SSLeay or the IO::Socket::SSL module.  The
-README.SSL file will tell you more about how libwww-perl supports SSL.
+          @suffixes = media_suffix('image/*', 'audio/basic');
+          $suffix = media_suffix('text/html');
 
+    The following functions are only exported by explicit request:
 
-INSTALLATION
+    add_type( $type, @exts )
+        Associate a list of file extensions with the given media type.
+        Example:
 
-You install libwww-perl using the normal perl module distribution drill:
+            add_type("x-world/x-vrml" => qw(wrl vrml));
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+    add_encoding( $type, @ext )
+        Associate a list of file extensions with an encoding type. Example:
 
-If you don't want to install any programs (only the library files) then
-pass the '--no-programs' option to Makefile.PL:
+         add_encoding("x-gzip" => "gz");
 
-   perl Makefile.PL --no-programs
+    read_media_types( @files )
+        Parse media types files and add the type mappings found there.
+        Example:
 
-
-DOCUMENTATION
-
-See the lib/LWP.pm file for an overview of the library. See the
-Changes file for recent changes.
-
-POD style documentation is included in all modules and scripts.  These
-are normally converted to manual pages and installed as part of the
-"make install" process.  You should also be able to use the 'perldoc'
-utility to extract and read documentation from the module files
-directly.
-
-
-SUPPORT
-
-Bug reports and suggestions for improvements can be sent to the
-<libwww@perl.org> mailing list.  This mailing list is also the place
-for general discussions and development of the libwww-perl package.
-
-
-AVAILABILITY
-
-The latest version of libwww-perl is available from CPAN:
-
-     http://search.cpan.org/dist/libwww-perl/
-
-If you want to hack on the source it might be a good idea to grab the
-latest version with git using the command:
-
-     git clone git://github.com/gisle/libwww-perl.git lwp
-
-You can also browse the git repository at:
-
-     http://github.com/gisle/libwww-perl
-
+            read_media_types("conf/mime.types");
 
 COPYRIGHT
+    Copyright 1995-1999 Gisle Aas.
 
-  © 1995-2010 Gisle Aas. All rights reserved.
-  © 1995 Martijn Koster. All rights reserved.
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-Enjoy!

@@ -1,15 +1,16 @@
 #!perl -w
 
+use strict;
 use Test;
 
 use LWP::MediaTypes;
 
-$url1 = URI->new('http://www/foo/test.gif?search+x#frag');
-$url2 = URI->new('http:test');
+my $url1 = URI->new('http://www/foo/test.gif?search+x#frag');
+my $url2 = URI->new('http:test');
 
-$file = "./README";
+my $file = "./README";
 
-@tests =
+my @tests =
 (
  ["/this.dir/file.html" => "text/html",],
  ["test.gif.htm"        => "text/html",],
@@ -35,28 +36,28 @@ If you get a failed test, try to move it away while testing.
 
 
 for (@tests) {
-    ($file, $expectedtype, @expectedEnc) = @$_;
-    $type1 = guess_media_type($file);
-    ($type, @enc) = guess_media_type($file);
+    my($file, $expectedtype, @expectedEnc) = @$_;
+    my $type1 = guess_media_type($file);
+    my($type, @enc) = guess_media_type($file);
     ok($type1, $type);
     ok($type, $expectedtype);
     ok("@enc", "@expectedEnc");
 }
 
-@imgSuffix = media_suffix('image/*');
+my @imgSuffix = media_suffix('image/*');
 print "# Image suffixes: @imgSuffix\n";
 ok(grep $_ eq "gif", @imgSuffix);
 
-@audioSuffix = media_suffix('AUDIO/*');
+my @audioSuffix = media_suffix('AUDIO/*');
 print "# Audio suffixes: @audioSuffix\n";
 ok(grep $_ eq 'oga', @audioSuffix);
 ok(media_suffix('audio/OGG'), 'oga');
 
-$r = Headers->new;
+my $r = Headers->new;
 guess_media_type("file.tar.gz.uu", $r);
 ok($r->header("Content-Type"), "application/x-tar");
 
-@enc = $r->header("Content-Encoding");
+my @enc = $r->header("Content-Encoding");
 ok("@enc", "gzip x-uuencode");
 
 #
@@ -65,7 +66,7 @@ add_type("x-world/x-vrml", qw(wrl vrml));
 add_encoding("x-gzip" => "gz");
 add_encoding(rot13 => "r13");
 
-@x = guess_media_type("foo.vrml.r13.gz");
+my @x = guess_media_type("foo.vrml.r13.gz");
 #print "@x\n";
 ok("@x", "x-world/x-vrml rot13 x-gzip");
 

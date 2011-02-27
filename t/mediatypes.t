@@ -4,10 +4,8 @@ use Test;
 
 use LWP::MediaTypes;
 
-require URI::URL;
-
-$url1 = new URI::URL 'http://www/foo/test.gif?search+x#frag';
-$url2 = new URI::URL 'http:test';
+$url1 = URI->new('http://www/foo/test.gif?search+x#frag');
+$url2 = URI->new('http:test');
 
 my $pwd if $^O eq "MacOS";
 
@@ -74,13 +72,9 @@ print "# Audio suffixes: @audioSuffix\n";
 ok(grep $_ eq 'oga', @audioSuffix);
 ok(media_suffix('audio/OGG'), 'oga');
 
-require HTTP::Response;
-$r = new HTTP::Response 200, "Document follows";
-$r->title("file.tar.gz.uu");
-guess_media_type($r->title, $r);
-#print $r->as_string;
-
-ok($r->content_type, "application/x-tar");
+$r = Headers->new;
+guess_media_type("file.tar.gz.uu", $r);
+ok($r->header("Content-Type"), "application/x-tar");
 
 @enc = $r->header("Content-Encoding");
 ok("@enc", "gzip x-uuencode");
@@ -101,5 +95,41 @@ if($^O eq "MacOS") {
     unlink "README";
     unlink "/dev/null";
     chdir($pwd);
+}
+
+BEGIN {
+    # mockups
+    package URI;
+    sub new {
+	my($class, $str) = @_;
+	bless \$str, $class;
+    }
+
+    sub path {
+	my $self = shift;
+	my $p = $$self;
+	$p =~ s/[\?\#].*//;
+	return $p;
+    }
+
+    package Headers;
+    sub new {
+	my $class = shift;
+	return bless {}, $class;
+    }
+
+    sub header {
+	my $self = shift;
+	my $k = lc(shift);
+	my $old = $self->{$k};
+	if (@_) {
+	    $self->{$k} = shift;
+	}
+	if (ref($old) eq "ARRAY") {
+	    return @$old if wantarray;
+	    return join(", ", @$old)
+	}
+	return $old;
+    }
 }
 

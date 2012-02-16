@@ -41,13 +41,6 @@ read_media_types();
 
 
 
-sub _dump {
-    require Data::Dumper;
-    Data::Dumper->new([\%suffixType, \%suffixExt, \%suffixEncoding],
-		      [qw(*suffixType *suffixExt *suffixEncoding)])->Dump;
-}
-
-
 sub guess_media_type
 {
     my($file, $header) = @_;

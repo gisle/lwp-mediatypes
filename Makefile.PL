@@ -12,6 +12,10 @@ WriteMakefile(
     LICENSE => "perl",
     MIN_PERL_VERSION => 5.006002,
     PREREQ_PM => {
+        "Scalar::Util" => 0,
+        "Carp" => 0,
+        "Test::More" => "0.96",
+        "Test::Exception" => 0,
     },
     META_MERGE => {
 	resources => {
